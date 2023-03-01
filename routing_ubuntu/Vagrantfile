@@ -1,0 +1,26 @@
+Vagrant.configure("2") do |config|
+  config.vm.define "web" do |web|
+    web.vm.box = ""
+    web.vm.hostname = "web.local"
+    web.vm.network "private_network", ip: "192.168.10.21", hostname: true
+    web.vm.provision "shell", inline: <<-SHELL
+    SHELL
+  end
+
+  config.vm.define "db" do |db|
+    db.vm.box = ""
+    db.vm.hostname = "db.local"
+    db.vm.network "private_network", ip: "192.168.10.22", hostname: true
+    # copy netplan network configuration file to vm
+    db.vm.provision "file", source: "./db_50-vagrant.yaml", destination: "/home/vagrant/50-vagrant.yaml"
+    db.vm.provision "shell", inline: <<-SHELL
+      # remove default gateway virtualbox
+      sudo ip route del 0/0
+      # disable eth0 door netplan network interface config file te verwijderen
+      sudo mv /etc/netplan/01-netcfg.yaml /home/vagrant/01-netcfg.yaml.bak
+      # move netplan network configuration to corrent location
+      sudo mv /home/vagrant/50-vagrant.yaml /etc/netplan/
+      sudo chmod 644 /etc/netplan/50-vagrant.yaml
+    SHELL
+  end
+end
