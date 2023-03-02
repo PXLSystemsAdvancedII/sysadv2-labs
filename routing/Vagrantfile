@@ -15,10 +15,10 @@ Vagrant.configure("2") do |config|
     end
     web.vm.provision "shell", inline: <<-SHELL
       sudo echo "192.168.56.22 db" | sudo tee -a /etc/hosts
-      sudo yum -y install ntp
-      sudo yum -y install net-tools
+#      sudo yum -y install ntp
+#      sudo yum -y install net-tools
       sudo timedatectl set-timezone Europe/Brussels
-      sudo systemctl start ntpd
+#      sudo systemctl start ntpd
     SHELL
   end
 
@@ -33,10 +33,10 @@ Vagrant.configure("2") do |config|
     end
     db.vm.provision "shell", inline: <<-SHELL
       sudo echo "192.168.56.21 web" | sudo tee -a /etc/hosts
-      sudo yum -y install ntp
-      sudo yum -y install net-tools
+ #     sudo yum -y install ntp
+ #     sudo yum -y install net-tools
       sudo timedatectl set-timezone Europe/Brussels
-      sudo systemctl start ntpd
+ #     sudo systemctl start ntpd
       sudo ip route del 0/0
     SHELL
   end
