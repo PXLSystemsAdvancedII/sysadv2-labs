@@ -1,0 +1,119 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+# The "2" in Vagrant.configure configures the configuration version
+Vagrant.configure("2") do |config|
+  config.vm.define "web" do |web|
+    web.vm.box = "centos/7"
+    web.vm.hostname = "web.local"
+    web.vm.network "private_network", ip: "192.168.1.50", netmask: "255.255.255.0", hostname: true
+    web.vm.network "private_network", ip: "192.168.2.50", netmask: "255.255.255.128"
+    web.vm.provider :virtualbox do |vb|
+      vb.memory = 1024
+      vb.cpus = 2
+    end
+    web.vm.provision "shell", inline: <<-SHELL
+      echo "****** setup hosts file ***"
+      sudo echo -e "192.168.1.100\tdb" | sudo tee -a /etc/hosts
+      sudo echo -e "192.168.2.100\tmon" | sudo tee -a /etc/hosts
+      echo "****** install packages ***"
+      sudo yum -y install ntp
+      sudo yum -y install net-tools
+      sudo yum -y install traceroute
+      echo "****** setup ntp ***"
+      sudo timedatectl set-timezone Europe/Brussels
+      sudo systemctl start ntpd
+      # enable routing
+      # echo "****** enable routing ***"
+      # echo "net.ipv4.ip_forward=1" | sudo tee -a /etc/sysctl.conf
+      # sudo sysctl -p
+      # enable nat on eth0 10.0.2.0/24 network
+      # echo "****** enable NAT ***"
+      # sudo iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
+      # set PasswordAuthentication to yes in sshd_config
+      echo "****** setup sshd ***"
+      sudo sed -i 's/PasswordAuthentication no/PasswordAuthentication yes/g' /etc/ssh/sshd_config    
+      sudo systemctl restart sshd.service
+    SHELL
+  end
+
+  config.vm.define "db" do |db|
+    db.vm.box = "centos/7"
+    db.vm.hostname = "db.local"
+    db.vm.network "private_network", ip: "192.168.1.100", netmask: "255.255.255.0", hostname: true
+    # delete default gw on eth0
+    db.vm.provider :virtualbox do |vb|
+      vb.gui = true
+      vb.memory = 1024
+      vb.cpus = 2
+    end
+    db.vm.provision "file", source: "./ifcfg-eth1", destination: "/home/vagrant/ifcfg-eth1"
+    db.vm.provision "shell", inline: <<-SHELL
+      echo "****** setup hosts file ***"
+      sudo echo -e "192.168.1.50\tweb" | sudo tee -a /etc/hosts
+      sudo echo -e "192.168.2.100\tmon" | sudo tee -a /etc/hosts
+      echo "****** install packages ***"
+      sudo yum -y install ntp
+      sudo yum -y install net-tools
+      sudo yum -y install traceroute
+      echo "****** setup ntp ***"
+      sudo timedatectl set-timezone Europe/Brussels
+      sudo systemctl start ntpd
+      # move ifcfg-eth1 network configuration to corrent location
+      # contains permanent default gateway and dns settings
+      # echo "****** setup eth1 network ***"
+      # sudo mv /home/vagrant/ifcfg-eth1 /etc/sysconfig/network-scripts/ifcfg-eth1
+      # sudo chmod 664 /etc/sysconfig/network-scripts/ifcfg-eth1
+      # remove default gateway and add new default gateway virtualbox
+      echo "****** setup default gateway ***"
+      sudo ip route del 0/0
+      # sudo ip route add default via 192.168.1.50
+      # set PasswordAuthentication to yes in sshd_config
+      echo "****** setup sshd ***"
+      sudo sed -i 's/PasswordAuthentication no/PasswordAuthentication yes/g' /etc/ssh/sshd_config    
+      sudo systemctl restart sshd.service
+      # 'disable' eth0 at next reboot door eth0 network script leeg te maken
+      echo "****** disable eth0 ***"
+      echo "DEVICE=eth0" > /etc/sysconfig/network-scripts/ifcfg-eth0
+    SHELL
+  end
+  config.vm.define "mon" do |mon|
+    mon.vm.box = "centos/7"
+    mon.vm.hostname = "mon.local"
+    mon.vm.network "private_network", ip: "192.168.2.100", netmask: "255.255.255.128", hostname: true
+    # delete default gw on eth0
+    mon.vm.provider :virtualbox do |vb|
+      vb.memory = 1024
+      vb.cpus = 2
+    end
+    mon.vm.provision "file", source: "./ifcfg-eth1", destination: "/home/vagrant/ifcfg-eth1"
+    mon.vm.provision "shell", inline: <<-SHELL
+      echo "****** setup hosts file ***"
+      sudo echo -e "192.168.2.50\tweb" | sudo tee -a /etc/hosts
+      sudo echo -e "192.168.1.100\tdb" | sudo tee -a /etc/hosts
+      echo "****** install packages ***"
+      sudo yum -y install ntp
+      sudo yum -y install net-tools
+      sudo yum -y install traceroute
+      echo "****** setup ntp ***"
+      sudo timedatectl set-timezone Europe/Brussels
+      sudo systemctl start ntpd
+      # move ifcfg-eth1 network configuration to corrent location
+      # contains permanent default gateway and dns settings
+      # echo "****** setup eth1 network ***"
+      # sudo mv /home/vagrant/ifcfg-eth1 /etc/sysconfig/network-scripts/ifcfg-eth1
+      # sudo chmod 664 /etc/sysconfig/network-scripts/ifcfg-eth1
+      # remove default gateway and add new default gateway virtualbox
+      echo "****** setup default gateway ***"
+      sudo ip route del 0/0
+      # sudo ip route add default via 192.168.2.50
+      # set PasswordAuthentication to yes in sshd_config
+      echo "****** setup sshd ***"
+      sudo sed -i 's/PasswordAuthentication no/PasswordAuthentication yes/g' /etc/ssh/sshd_config    
+      sudo systemctl restart sshd.service
+      # 'disable' eth0 at next reboot door eth0 network script leeg te maken
+      echo "****** disable eth0 ***"
+      echo "DEVICE=eth0" > /etc/sysconfig/network-scripts/ifcfg-eth0
+    SHELL
+  end
+end
