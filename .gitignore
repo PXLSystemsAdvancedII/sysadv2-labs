@@ -1,0 +1,25 @@
+# Vagrant environment
+.vagrant/
+
+# Virtual machine logs and data
+*.log
+*.box
+*.vbox
+*.vbox-prev
+*.vmx
+*.vmxf
+*.vmdk
+*.vdi
+*.iso
+
+# Virtual machine configuration files
+*.vagrant
+.vagrant/
+
+# Ignore the SSH private key and known hosts file
+.ssh/
+
+# Ignore any synced folders specified in the Vagrantfile
+# Replace "/path/to/folder" with the actual path of the synced folder
+#/path/to/folder/
+
