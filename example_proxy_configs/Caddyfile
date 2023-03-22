@@ -1,0 +1,20 @@
+http://yourdomain.com {
+    route /blog/* {
+        reverse_proxy {
+            lb_policy round_robin
+            to blog1.yourdomain.com:80 blog2.yourdomain.com:80
+            health_uri /
+            health_interval 10s
+            health_timeout 5s
+        }
+    }
+    route {
+        reverse_proxy {
+            lb_policy round_robin
+            to web1.yourdomain.com:80 web2.yourdomain.com:80
+            health_uri /
+            health_interval 10s
+            health_timeout 5s
+        }
+    }
+}
