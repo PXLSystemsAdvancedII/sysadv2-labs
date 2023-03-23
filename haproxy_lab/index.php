@@ -1,4 +1,3 @@
 <?php
-echo gethostname() . "\n";
-
+echo "Hostname: " . gethostname();
 ?>
