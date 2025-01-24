@@ -5,7 +5,7 @@
 ![logo](image.png)
 
 ## Course Description <!-- {docsify-ignore} -->
-This repository contains labs and exercises for the Systems Advanced: Linux course.
+This repository contains labs and exercises for the Systems Advanced II course.
 
 ---
 
