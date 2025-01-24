@@ -1,3 +1,3 @@
 <!-- docs/_sidebar.md -->
 * [Systems Advanced II](/)
-* [0 - Set-up](00-set-up/course.md)
+* [0 - LAB: building a Linux kernel](build_kernel.md)
