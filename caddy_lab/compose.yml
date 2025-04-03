@@ -1,0 +1,22 @@
+services:
+  caddy:
+    image: caddy:latest
+    container_name: caddy
+    ports:
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+    networks:
+      - local-net
+
+  frontend:
+    image: nginx:latest
+    container_name: frontend
+    networks:
+      - local-net
+    ports:
+      - "8000:80" # host:8000 -> container:80
+
+networks:
+  local-net:
+    driver: bridge
