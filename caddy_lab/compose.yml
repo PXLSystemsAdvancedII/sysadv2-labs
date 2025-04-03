@@ -1,22 +1,46 @@
+version: '3.8'
+
 services:
   caddy:
-    image: caddy:latest
+    image: caddy:2.7.6
     container_name: caddy
     ports:
+      - "80:80"
       - "443:443"
+      - "2019:2019"  # Caddy admin API (metrics)
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile
     networks:
-      - local-net
+      - monitoring
 
   frontend:
     image: nginx:latest
     container_name: frontend
-    networks:
-      - local-net
+    expose:
+      - "80"
     ports:
-      - "8000:80" # host:8000 -> container:80
+      - "8000:80"
+    networks:
+      - monitoring
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    networks:
+      - monitoring
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    networks:
+      - monitoring
 
 networks:
-  local-net:
+  monitoring:
     driver: bridge
