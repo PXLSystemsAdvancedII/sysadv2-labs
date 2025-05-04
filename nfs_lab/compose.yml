@@ -1,0 +1,24 @@
+services:
+  nfs-server:
+    image: ehough/nfs-server
+    container_name: nfs-server
+    privileged: true
+    volumes:
+      - ./server-data:/data
+    ports:
+      - "11111:111"
+      - "2049:2049"
+      - "32765:32765"
+      - "32767:32767"
+    cap_add:
+      - SYS_ADMIN
+    
+  nfs-client:
+    image: ubuntu:latest
+    container_name: nfs-client
+    privileged: true
+    command: tail -f /dev/null
+    volumes:
+      - ./client-data:/client-mounts
+    depends_on:
+      - nfs-server
