@@ -12,6 +12,9 @@ services:
       - "32767:32767"
     cap_add:
       - SYS_ADMIN
+    environment:
+      - NFS_EXPORT_0='/data/share1 *(rw,no_root_squash,subtree_check)'
+      - NFS_EXPORT_1='/data/share2 *(rw,root_squash,no_subtree_check)'
     
   nfs-client:
     image: ubuntu:latest
