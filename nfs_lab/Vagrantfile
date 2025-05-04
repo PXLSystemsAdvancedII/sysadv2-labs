@@ -4,11 +4,17 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
+
 Vagrant.configure("2") do |config|
 
-  config.vm.box = "almalinux/9"
+  config.vm.box = "oraclelinux/8"
+
+  BOX_NAME = "oraclelinux/8"
+  BOX_URL = "https://oracle.github.io/vagrant-projects/boxes"
   GROUP = "/pxl-lab"
   MEMORY = 1024
+  config.vm.box = BOX_NAME
+  config.vm.box_url = "#{BOX_URL}/#{BOX_NAME}.json"
 
   # set host sync folder /vagrant to current directory
   config.vm.synced_folder '.', '/vagrant', disabled: true
