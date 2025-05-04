@@ -1,6 +1,6 @@
 services:
   nfs-server:
-    image: ehough/nfs-server
+    image: erichough/nfs-server
     container_name: nfs-server
     privileged: true
     volumes:
